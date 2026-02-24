@@ -8,6 +8,7 @@ from typing import Any
 
 from auth import get_current_user, oauth2_scheme
 from middleware.logging_middleware import log_requests
+from middleware.error_handler import add_exception_handlers
 
 app = FastAPI(
     title="API Gateway", 
@@ -19,6 +20,7 @@ app = FastAPI(
 )
 
 app.middleware("http")(log_requests)
+add_exception_handlers(app)
 
 # Service URLs
 SERVICES = {
@@ -64,6 +66,11 @@ async def forward_request(service: str, path: str, method: str, **kwargs) -> Any
                 response = await client.delete(url, **kwargs)
             else:
                 raise HTTPException(status_code=405, detail="Method not allowed")
+
+            if response.status_code >= 400:
+                # Provide a more structured error from the microservice
+                error_detail = response.json() if response.text else "Integration error"
+                raise HTTPException(status_code=response.status_code, detail=error_detail)
 
             return JSONResponse(
                 content=response.json() if response.text else None,
