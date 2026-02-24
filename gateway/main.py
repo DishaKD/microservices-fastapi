@@ -8,7 +8,8 @@ app = FastAPI(title="API Gateway", version="1.0.0")
 
 # Service URLs
 SERVICES = {
-    "student": "http://localhost:8001"
+    "student": "http://localhost:8001",
+    "course": "http://localhost:8002"
 }
 
 async def forward_request(service: str, path: str, method: str, **kwargs) -> Any:
@@ -69,3 +70,31 @@ async def update_student(student_id: int, request: Request):
 async def delete_student(student_id: int):
     """Delete a student through gateway"""
     return await forward_request("student", f"/api/students/{student_id}", "DELETE")
+
+# Course Service Routes
+@app.get("/gateway/courses")
+async def get_all_courses():
+    """Get all courses through gateway"""
+    return await forward_request("course", "/api/courses", "GET")
+
+@app.get("/gateway/courses/{course_id}")
+async def get_course(course_id: int):
+    """Get a course by ID through gateway"""
+    return await forward_request("course", f"/api/courses/{course_id}", "GET")
+
+@app.post("/gateway/courses")
+async def create_course(request: Request):
+    """Create a new course through gateway"""
+    body = await request.json()
+    return await forward_request("course", "/api/courses", "POST", json=body)
+
+@app.put("/gateway/courses/{course_id}")
+async def update_course(course_id: int, request: Request):
+    """Update a course through gateway"""
+    body = await request.json()
+    return await forward_request("course", f"/api/courses/{course_id}", "PUT", json=body)
+
+@app.delete("/gateway/courses/{course_id}")
+async def delete_course(course_id: int):
+    """Delete a course through gateway"""
+    return await forward_request("course", f"/api/courses/{course_id}", "DELETE")
