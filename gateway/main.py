@@ -7,6 +7,7 @@ import httpx
 from typing import Any
 
 from auth import get_current_user, oauth2_scheme
+from middleware.logging_middleware import log_requests
 
 app = FastAPI(
     title="API Gateway", 
@@ -16,6 +17,8 @@ app = FastAPI(
         "clientId": "fastapi"
     }
 )
+
+app.middleware("http")(log_requests)
 
 # Service URLs
 SERVICES = {
