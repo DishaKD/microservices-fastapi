@@ -4,3 +4,4 @@ __pycache__
 *.pyo
 *.pyd
 *.pycache__
+__init__.py
